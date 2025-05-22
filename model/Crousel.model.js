@@ -3,12 +3,8 @@ const mongoose = require('mongoose');
 const CrouselSchema = new mongoose.Schema({
     title: { type: String, required: true },
     content: { type: String, required: true },
-    category: {
-        type: String,
-        enum: ['For Singles', 'For Families' , 'For Students' , 'For Couples'],
-        required: true
-    },
     image: { type: String },
+    action:{type:String},
     updatedAt: { type: Date, default: Date.now }
 });
 

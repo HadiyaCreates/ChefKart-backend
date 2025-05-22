@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const GallerySchema = new mongoose.Schema({
     name: { type: String, required: true },
     content:{ type: String, required: true },
-    Galleryimage: { type: String },
+    Galleryimage:[ { type: String }],
     updatedAt: { type: Date, default: Date.now }
 });
 
