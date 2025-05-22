@@ -6,7 +6,7 @@ router.post('/create' , createBlog);
 router.get('/getAll',getallBlogs)
 router.get('/get/:id',getBlogById)
 router.put('/update/:id' , updateBlog)
-router.put('/delete/:id' ,  deleteBlog)
+router.delete('/delete/:id' ,  deleteBlog)
 
 
 module.exports = router
