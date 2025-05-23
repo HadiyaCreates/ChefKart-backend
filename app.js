@@ -6,6 +6,7 @@ const TestimonialRoutes = require('./routes/Testimonial.route')
 const GalleryRoutes = require('./routes/Gallery.route')
 const CrouselRoutes = require('./routes/Crousel.route')
 const ChefRoutes = require('./routes/Chef.route')
+const BookRoutes = require('./routes/Booking.route')
 
 const morgan = require('morgan');
 const connectDB = require('./config/db');
@@ -28,6 +29,7 @@ app.use('/testimonial', TestimonialRoutes);
 app.use('/gallery',GalleryRoutes)
 app.use('/crousel',CrouselRoutes)
 app.use('/chef',ChefRoutes)
+app.use('/Booking',BookRoutes)
 app.use('/api', require('./routes/api.route'));
 
 app.use((req, res, next) => {
