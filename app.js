@@ -10,6 +10,7 @@ const ChefRoutes = require('./routes/Chef.route')
 const BookRoutes = require('./routes/Booking.route')
 const PaymentRoutes = require('./routes/Payment.route')
 const ServiceRoutes = require('./routes/Service.route');
+const ContactRoutes = require('./routes/Contact.router');
 
 const morgan = require('morgan');
 const connectDB = require('./config/db');
@@ -36,6 +37,7 @@ app.use('/chef',ChefRoutes)
 app.use('/Booking',BookRoutes)
 app.use('/order',PaymentRoutes)
 app.use('/ser',ServiceRoutes)
+app.use('/contact',ContactRoutes)
 
 app.use('/api', require('./routes/api.route'));
 
