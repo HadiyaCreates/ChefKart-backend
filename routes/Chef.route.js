@@ -1,12 +1,10 @@
-const { createChef , getAllChefs, getChefById , updateChefById , deleteChefById, deleteAllChefs} = require('../controller/Chef.controller');
+const { createChef, getAllChef, getById, updateChef, deleteCheftById, DeleteAllChef } = require('../controller/Chef.controller');
 
 const router = require('express').Router();
-
-router.post('/createchef' ,  createChef);
-router.get('/get' , getAllChefs);
-router.get('/get/:id' ,getChefById);
-router.put('/update/:id', updateChefById)
-router.delete('/delete/:id',deleteChefById);
-router.delete('/delete', deleteAllChefs);
-
+router.post('/create',createChef  );
+router.get('/get',  getAllChef);
+router.get('/get/:id', getById);
+router.put('/update/:id',updateChef) ;
+router.delete('/delete/:id', deleteCheftById)
+router.delete('/delete', DeleteAllChef)
 module.exports = router;

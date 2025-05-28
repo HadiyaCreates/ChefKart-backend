@@ -1,153 +1,243 @@
 const { cloudinary } = require('../config/cloudinary');
-const Chef = require('../model/Chef.model')
+const ChefModel = require('../model/Chef.model');
 
-// Create a new chef
+// Create Chef
 const createChef = async (req, res) => {
-  try {
-    const {
-      name, Address, profilepic, city, state, area,
-      country, pincode, email, phone, experience
-    } = req.body;
+   try {
+       const {
+           name,
+           Address,
+           profilepic, // This should be a Base64 string (with data:image/jpeg;base64,...)
+           default_cook_image,
+           city,
+           state,
+           area,
+           country,
+           pincode,
+           email,
+           phone,
+           experience,
+           verified,
+           starRating,
+           totalRatings,
+           language,
+           veg,
+           nonVeg,
+           aboutCook,
+           cuisineRatings,
+           availableLocations,
+           availability,
+           housesServed
+       } = req.body;
 
-    if (
-      !name || !Address || !city || !state || !area ||
-      !country || !pincode || !email || !phone || !experience
-    ) {
-      return res.status(400).json({ message: "Please fill in all required fields" });
-    }
-    const existingChef = await Chef.findOne({email:email});
-    if(existingChef){
-        return res.status(400).json({message:"Chef already exists"})
-    }
-    const newChef = new Chef({
-      name,
-      Address,
-      profilepic,
-      city,
-      state,
-      area,
-      country,
-      pincode,
-      email,
-      phone,
-      experience
-    });
+       // ✅ Check required fields
+       if (!name || !Address || !city || !state || !area || !country || !pincode || !email || !phone || !experience) {
+           return res.status(400).json({ message: "All required fields must be filled" });
+       }
 
-    await newChef.save();
+       // ✅ Check if chef already exists by email
+       const existingChef = await ChefModel.findOne({ email });
+       if (existingChef) {
+           return res.status(400).json({ message: "Chef already exists" });
+       }
 
-    res.status(201).json({
-      message: "Chef created successfully",
-      data: newChef,
-    });
-  } catch (error) {
-    console.error("Error creating chef:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
+      
+       // ✅ Create and save the new chef
+       const newChef = new ChefModel({
+           name,
+           Address,
+           city,
+           state,
+           area,
+           country,
+           pincode,
+           email,
+           phone,
+           experience,
+           profilepic,
+           default_cook_image,
+           verified,
+           starRating,
+           totalRatings,
+           language,
+           veg,
+           nonVeg,
+           aboutCook,
+           cuisineRatings,
+           availableLocations,
+           availability,
+           housesServed
+       });
+
+       await newChef.save();
+
+       res.status(201).json({
+           message: "Chef created successfully",
+           data: newChef
+       });
+
+   } catch (error) {
+       console.error("Error:", error);
+       res.status(500).json({ message: "Internal server error" });
+   }
 };
 
 // Get all chefs
-const getAllChefs = async (req, res) => {
-  try {
-    const chefs = await Chef.find();
-
-    if (!chefs.length) {
-      return res.status(404).json({ message: "No chefs found" });
+const getAllChef = async (req, res) => {
+    try {
+        const chefs = await ChefModel.find();
+        res.status(200).json({
+            message: "Chefs fetched successfully",
+            data: chefs
+        });
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ message: "Internal server error" });
     }
-
-    res.status(200).json({
-      message: "Chefs fetched successfully",
-      data: chefs,
-    });
-  } catch (error) {
-    console.error("Error fetching chefs:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
 };
-
 
 // Get chef by ID
-const getChefById = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const chef = await Chef.findById(id);
-
-    if (!chef) {
-      return res.status(404).json({ message: "Chef not found" });
+const getById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const chef = await ChefModel.findById(id);
+        if (!chef) {
+            return res.status(404).json({ message: "Chef not found" });
+        }
+        res.status(200).json({
+            message: "Chef fetched successfully",
+            data: chef
+        });
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ message: "Internal server error" });
     }
-
-    res.status(200).json({
-      message: "Chef fetched successfully",
-      data: chef,
-    });
-  } catch (error) {
-    console.error("Error fetching chef by ID:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
 };
 
-const updateChefById = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updateData = req.body;
+// Update chef
+const updateChef = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const {
+            name,
+            Address,
+            profilepic,
+            default_cook_image,
+            city,
+            state,
+            area,
+            country,
+            pincode,
+            email,
+            phone,
+            experience,
+            verified,
+            starRating,
+            totalRatings,
+            language,
+            veg,
+            nonVeg,
+            aboutCook,
+            cuisineRatings,
+            availableLocations,
+            availability,
+            housesServed
+        } = req.body;
 
-    const updatedChef = await Chef.findByIdAndUpdate(id, updateData, {
-      new: true, // returns the updated document
-      runValidators: true,
-    });
+        let profilepicUrl = profilepic;
+        if (profilepic && profilepic.startsWith("data:")) {
+            const uploadResult = await cloudinary.uploader.upload(profilepic, {
+                folder: "Chef"
+            });
+            profilepicUrl = uploadResult.secure_url;
+        }
 
-    if (!updatedChef) {
-      return res.status(404).json({ message: "Chef not found" });
+        const updatedChef = await ChefModel.findByIdAndUpdate(
+            id,
+            {
+                name,
+                Address,
+                city,
+                state,
+                area,
+                country,
+                pincode,
+                email,
+                phone,
+                experience,
+                profilepic: profilepicUrl,
+                default_cook_image,
+                verified,
+                starRating,
+                totalRatings,
+                language,
+                veg,
+                nonVeg,
+                aboutCook,
+                cuisineRatings,
+                availableLocations,
+                availability,
+                housesServed
+            },
+            { new: true }
+        );
+
+        if (!updatedChef) {
+            return res.status(404).json({ message: "Chef not found" });
+        }
+
+        res.status(200).json({
+            message: "Chef updated successfully",
+            data: updatedChef
+        });
+
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ message: "Internal server error" });
     }
-
-    res.status(200).json({
-      message: "Chef updated successfully",
-      data: updatedChef,
-    });
-  } catch (error) {
-    console.error("Error updating chef:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
 };
-const deleteChefById = async (req, res) => {
-  try {
-    const { id } = req.params;
 
-    const deletedChef = await Chef.findByIdAndDelete(id);
+// Delete chef by ID
+const deleteCheftById = async (req, res) => {
+    try {
+        const { id } = req.params;
 
-    if (!deletedChef) {
-      return res.status(404).json({ message: "Chef not found" });
+        if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+            return res.status(400).json({ message: "Invalid ID format" });
+        }
+
+        const chef = await ChefModel.findById(id);
+        if (!chef) {
+            return res.status(404).json({ message: "Chef not found" });
+        }
+
+        await ChefModel.findByIdAndDelete(id);
+        res.status(200).json({ message: "Chef deleted successfully" });
+
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ message: "Internal server error" });
     }
-
-    res.status(200).json({
-      message: "Chef deleted successfully",
-      data: deletedChef,
-    });
-  } catch (error) {
-    console.error("Error deleting chef:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
-const deleteAllChefs = async (req, res) => {
-  try {
-    const result = await Chef.deleteMany({});
-
-    res.status(200).json({
-      message: "All chefs deleted successfully",
-      deletedCount: result.deletedCount,
-    });
-  } catch (error) {
-    console.error("Error deleting all chefs:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
 };
 
+// Delete all chefs
+const DeleteAllChef = async (req, res) => {
+    try {
+        await ChefModel.deleteMany();
+        res.status(200).json({
+            message: "All chefs deleted successfully"
+        });
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
 
 module.exports = {
-createChef,
-getAllChefs,
-getChefById,
-updateChefById,
-deleteChefById,
-deleteAllChefs
-}
+    createChef,
+    getAllChef,
+    getById,
+    updateChef,
+    deleteCheftById,
+    DeleteAllChef
+};
