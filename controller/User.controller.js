@@ -93,8 +93,18 @@ const UserLogin = async (req, res) => {
     res.status(500).json({ message: 'Login failed', error: error.message });
   }
 };
+// ──────────────── GET ALL USERS ────────────────
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find({}, { password: 0 }); // Exclude password
+    res.status(200).json({ data: users });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch users', error: error.message });
+  }
+};
 
 module.exports = {
   UserSignUp,
   UserLogin,
+  getAllUsers
 };
